@@ -8,14 +8,14 @@ import (
 const (
 	numCols    = 3
 	numRows    = 3
-	initialVal = "."
+	InitialVal = " "
 )
 
-var columns = [3]string{"A", "B", "C"}
-var rows = [3]string{"1", "2", "3"}
+var RowLabels = [3]string{"A", "B", "C"}
+var ColumnLabels = [3]string{"1", "2", "3"}
 
 type Board struct {
-	board   [3][3]string
+	Board   [3][3]string
 	players []Player
 }
 
@@ -24,35 +24,34 @@ func NewBoard(players []Player) Board {
 
 	for r := 0; r < numRows; r++ {
 		for c := 0; c < numCols; c++ {
-			board[r][c] = initialVal
+			board[r][c] = InitialVal
 		}
 	}
-	return Board{board: board, players: players}
+	return Board{Board: board, players: players}
 }
 
 func (b Board) Print() {
-
 	// Print header
 	fmt.Print(" ")
-	for _, c := range columns {
+	for _, c := range ColumnLabels {
 		fmt.Printf(" %s  ", c)
 	}
 	fmt.Print("\n")
 
 	// Print board
-	for r := 0; r < len(rows); r++ {
-		fmt.Printf("%s", rows[r])
-		for c := 0; c < len(columns); c++ {
-			fmt.Printf(" %s ", b.board[r][c])
+	for r := 0; r < len(RowLabels); r++ {
+		fmt.Printf("%s", RowLabels[r])
+		for c := 0; c < len(ColumnLabels); c++ {
+			fmt.Printf(" %s ", b.Board[r][c])
 
-			if c != len(columns)-1 {
+			if c != len(ColumnLabels)-1 {
 				fmt.Print("|")
 			}
 		}
 
 		// Print separator
-		if r != len(rows)-1 {
-			fmt.Printf("\n %s", strings.Repeat("-", len(columns)*3+len(rows)-1))
+		if r != len(RowLabels)-1 {
+			fmt.Printf("\n %s", strings.Repeat("-", len(ColumnLabels)*3+len(RowLabels)-1))
 		}
 
 		fmt.Print("\n")
@@ -66,7 +65,7 @@ func (b Board) WinningPlayer() *Player {
 			var allEqual = true
 
 			for c := 0; c < numCols; c++ {
-				allEqual = allEqual && b.board[r][c] == p.Symbol
+				allEqual = allEqual && b.Board[r][c] == p.Symbol
 			}
 			if allEqual {
 				return &p
@@ -78,7 +77,7 @@ func (b Board) WinningPlayer() *Player {
 			var allEqual = true
 
 			for r := 0; r < numRows; r++ {
-				allEqual = allEqual && b.board[r][c] == p.Symbol
+				allEqual = allEqual && b.Board[r][c] == p.Symbol
 			}
 			if allEqual {
 				return &p
@@ -88,7 +87,7 @@ func (b Board) WinningPlayer() *Player {
 		// Check diagonal top to bottom
 		var allEqual = true
 		for c, r := 0, 0; c < numCols && r < numRows; c, r = c+1, r+1 {
-			allEqual = allEqual && b.board[r][c] == p.Symbol
+			allEqual = allEqual && b.Board[r][c] == p.Symbol
 		}
 		if allEqual {
 			return &p
@@ -97,7 +96,7 @@ func (b Board) WinningPlayer() *Player {
 		// Check diagonal bottom to top
 		allEqual = true
 		for c, r := 0, numRows-1; c < numCols && r >= 0; c, r = c+1, r-1 {
-			allEqual = allEqual && b.board[r][c] == p.Symbol
+			allEqual = allEqual && b.Board[r][c] == p.Symbol
 		}
 		if allEqual {
 			return &p
@@ -106,25 +105,36 @@ func (b Board) WinningPlayer() *Player {
 	return nil
 }
 
+func (b Board) IsDraw() bool {
+	for r := 0; r < numRows; r++ {
+		for c := 0; c < numCols; c++ {
+			if b.Board[r][c] == InitialVal {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (b *Board) Play(p Player, position string) Error {
 	// Valiate position
 	if len(position) != 2 {
 		return InvalidMoveError{move: position}
 	}
 
-	col := findInArray(columns[:], string(position[0]))
-	row := findInArray(rows[:], string(position[1]))
+	row := findInArray(RowLabels[:], string(position[0]))
+	col := findInArray(ColumnLabels[:], string(position[1]))
 
 	if col < 0 || row < 0 {
 		return InvalidMoveError{move: position}
 	}
 
-	if b.board[row][col] != initialVal {
+	if b.Board[row][col] != InitialVal {
 		return PositionAlreadyOccupiedError{move: position}
 	}
 
 	// Update the board
-	b.board[row][col] = p.Symbol
+	b.Board[row][col] = p.Symbol
 	return nil
 }
 

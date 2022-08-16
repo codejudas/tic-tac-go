@@ -1,20 +1,28 @@
 package util
 
+import (
+	"github.com/gookit/color"
+)
+
 type Player struct {
-	Ordinal int
-	Symbol  string
+	Ordinal  int
+	Symbol   string
+	Strategy Strategy
 }
 
-func newPlayer(ord int) Player {
-	symbol := "X"
-	if ord != 0 {
-		symbol = "O"
+func NewPlayer(ord int, strat Strategy) Player {
+	symbol := color.Cyan.Render("X")
+	if ord != 1 {
+		symbol = color.Yellow.Render("O")
 	}
 
 	return Player{
-		Ordinal: ord,
-		Symbol:  symbol,
+		Ordinal:  ord,
+		Symbol:   color.Bold.Render(symbol),
+		Strategy: strat,
 	}
 }
 
-var Players = [...]Player{newPlayer(0), newPlayer(1)}
+func (p Player) NextMove(board Board) string {
+	return p.Strategy.NextMove(p, board)
+}
